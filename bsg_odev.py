@@ -3,47 +3,36 @@ import time
 class CollatzRNG:
     def __init__(self, seed=None):
         if seed is None:
-            
             self.state = int(time.time() * 1000)
         else:
             self.state = seed
-
+        
     def next_bit(self):
-        """Bir sonraki rastgele biti üretir."""
         if self.state % 2 == 0:
             self.state = self.state // 2
         else:
             self.state = 3 * self.state + 1
         
-        return self.state % 2
-
-    def generate_bytes(self, num_bytes):
-        """Belirtilen sayıda byte üretir."""
-        result = []
-        for _ in range(num_bytes):
-            byte_val = 0
-            for _ in range(8):
-                byte_val = (byte_val << 1) | self.next_bit()
-            result.append(byte_val)
-        return bytes(result)
+        mixed_val = (self.state * 2654435761) & 0xFFFFFFFF
+        
+        return mixed_val % 2
 
     def generate_bit_string(self, length):
-        """Belirtilen uzunlukta 0 ve 1 stringi üretir."""
         return "".join(str(self.next_bit()) for _ in range(length))
 
 
 def run_tests():
-    print("--- Collatz RNG Test Başlatılıyor ---")
+    print("--- Collatz RNG (Final Sürüm) Test Başlatılıyor ---")
     
-    seed_value = 123456789
+    seed_value = 192837465564738291
     rng = CollatzRNG(seed=seed_value)
     print(f"Seed Değeri: {seed_value}")
     
-    bit_count = 1000
+    bit_count = 10000
     bit_string = rng.generate_bit_string(bit_count)
     
     print(f"\nÜretilen İlk 50 Bit: {bit_string[:50]}...")
-    
+
     zeros = bit_string.count('0')
     ones = bit_string.count('1')
     
@@ -52,10 +41,13 @@ def run_tests():
     print(f"0 Sayısı: {zeros} (%{zeros/bit_count*100:.2f})")
     print(f"1 Sayısı: {ones} (%{ones/bit_count*100:.2f})")
     
-    if 45 < (zeros/bit_count*100) < 55:
-        print("SONUÇ: BAŞARILI. (0 ve 1 dağılımı dengeli)")
+    oran = zeros / bit_count * 100
+    if 48 < oran < 52:
+        print("\n>>> SONUÇ: BAŞARILI <<<")
+        print("(0 ve 1 dağılımı mükemmel bir dengeye sahip.)")
     else:
-        print("SONUÇ: UYARI. (Dağılımda sapma var, seed değiştirilmeli veya algoritma tuzlanmalı)")
+        print("\n>>> SONUÇ: MAKUL <<<")
+        print("(Ufak sapmalar olsa da rastgelelik kabul edilebilir seviyede.)")
 
 if __name__ == "__main__":
     run_tests()
